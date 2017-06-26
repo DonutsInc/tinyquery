@@ -296,6 +296,19 @@ class TinyQuery(object):
             for (_, col_name), column in ctx.columns.items()
         ))
 
+    def run_empty_table_job(self, project_id,
+                     dest_dataset, dest_table_name, fields):
+        # TODO: Handle errors in the same way as BigQuery.
+
+        dest_full_table_name = dest_dataset + '.' + dest_table_name
+        self.make_empty_table(dest_full_table_name, fields)
+
+        return self.create_job(project_id, CopyJob({
+            'status': {
+                'state': 'DONE'
+            },
+        }))
+
     def run_copy_job(self, project_id, src_dataset, src_table_name,
                      dest_dataset, dest_table_name, create_disposition,
                      write_disposition):
@@ -305,6 +318,7 @@ class TinyQuery(object):
         src_table = self.tables_by_name[src_full_table_name]
         self.copy_table(src_table, dest_full_table_name, create_disposition,
                         write_disposition)
+
         return self.create_job(project_id, CopyJob({
             'status': {
                 'state': 'DONE'

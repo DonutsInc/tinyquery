@@ -151,6 +151,17 @@ class JobServiceApiClient(object):
             return self.tq_service.run_copy_job(
                 projectId, src_dataset, src_table, dest_dataset, dest_table,
                 create_disposition, write_disposition)
+        elif 'load' in body['configuration']:
+            config = body['configuration']['load']
+            dest_dataset, dest_table = self._get_config_table(
+                config, 'destinationTable')
+
+            raw_schema = config['schema']
+            return self.tq_service.run_empty_table_job(project_id=projectId,
+                                                       dest_dataset=dest_dataset,
+                                                       dest_table_name=dest_table,
+                                                       fields=raw_schema)
+
         else:
             assert False, 'Unknown job type: {}'.format(
                 list(body['configuration'].keys()))

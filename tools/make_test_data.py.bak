@@ -35,7 +35,7 @@ def sample_table_data(dataset, table, num_rows):
 def write_sample_table_code(dataset, table, num_rows):
     schema = fetch_table_schema(dataset, table)
     rows = sample_table_data(dataset, table, num_rows)
-    return (json.dumps(schema), list(map(json.dumps, rows)))
+    return (json.dumps(schema), map(json.dumps, rows))
 
 
 if __name__ == '__main__':
@@ -48,7 +48,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     schema, rows = write_sample_table_code(
         args.dataset, args.table, args.num_rows)
-    print(schema)
-    print('')
+    print schema
+    print ''
     for row in rows:
-        print(row)
+        print row
