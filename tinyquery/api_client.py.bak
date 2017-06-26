@@ -153,7 +153,7 @@ class JobServiceApiClient(object):
                 create_disposition, write_disposition)
         else:
             assert False, 'Unknown job type: {}'.format(
-                list(body['configuration'].keys()))
+                body['configuration'].keys())
 
     @staticmethod
     def _get_config_table(config, key):
@@ -225,16 +225,16 @@ def schema_from_table(table):
     """Given a tinyquery.Table, build an API-compatible schema."""
     return {'fields': [
         {'name': name, 'type': col.type}
-        for name, col in table.columns.items()
+        for name, col in table.columns.iteritems()
     ]}
 
 
 def rows_from_table(table):
     """Given a tinyquery.Table, build an API-compatible rows object."""
     result_rows = []
-    for i in range(table.num_rows):
+    for i in xrange(table.num_rows):
         field_values = [{'v': str(col.values[i])}
-                        for col in table.columns.values()]
+                        for col in table.columns.itervalues()]
         result_rows.append({
             'f': field_values
         })

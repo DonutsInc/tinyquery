@@ -1,8 +1,8 @@
 import unittest
 
-from . import api_client
-from . import tq_types
-from . import tinyquery
+import api_client
+import tq_types
+import tinyquery
 
 
 class ApiClientTest(unittest.TestCase):
@@ -144,7 +144,7 @@ class ApiClientTest(unittest.TestCase):
             }
         ).execute()
 
-        for _ in range(5):
+        for _ in xrange(5):
             self.tq_service.jobs().insert(
                 projectId='test_project',
                 body={

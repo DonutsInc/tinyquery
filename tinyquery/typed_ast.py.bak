@@ -1,8 +1,8 @@
 """A set of AST classes with types and aliases filled in."""
 
 import collections
-from . import type_context
-from . import tq_modes
+import type_context
+import tq_modes
 
 
 class Select(collections.namedtuple(

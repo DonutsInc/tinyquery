@@ -7,12 +7,12 @@ This step has a number of responsibilities:
 import collections
 import itertools
 
-from . import parser
-from . import runtime
-from . import tq_ast
-from . import typed_ast
-from . import type_context
-from . import tq_types
+import parser
+import runtime
+import tq_ast
+import typed_ast
+import type_context
+import tq_types
 
 
 class CompileError(Exception):
@@ -48,7 +48,7 @@ class Compiler(object):
 
         # Implicit columns can only show up in non-aggregate select fields.
         implicit_column_context = self.find_used_column_context(
-            list(compiled_field_dict.values()))
+            compiled_field_dict.values())
 
         for alias, within_clause, select_field in zip(aliases, within_clauses,
                                                       select_fields):
@@ -93,7 +93,7 @@ class Compiler(object):
         """
         table_ctx = table_expr.type_ctx
         star_select_fields = []
-        for table_name, col_name in table_ctx.columns.keys():
+        for table_name, col_name in table_ctx.columns.iterkeys():
             if table_name is not None:
                 col_ref = table_name + '.' + col_name
             else:
@@ -112,7 +112,9 @@ class Compiler(object):
             elif (field.expr and isinstance(field.expr, tq_ast.ColumnId) and
                   field.expr.name.endswith('.*')):
                 prefix = field.expr.name[:-len('.*')]
-                record_star_fields = [f for f in star_select_fields if f.alias.startswith(prefix)]
+                record_star_fields = filter(
+                    lambda f: f.alias.startswith(prefix),
+                    star_select_fields)
                 result_fields.extend(record_star_fields)
             else:
                 result_fields.append(field)
@@ -211,7 +213,7 @@ class Compiler(object):
             return method(table_expr)
 
     def compile_table_expr_TableId(self, table_expr):
-        from . import tinyquery  # TODO(colin): fix circular import
+        import tinyquery  # TODO(colin): fix circular import
         table = self.tables_by_name[table_expr.name]
         if isinstance(table, tinyquery.Table):
             return self.compile_table_ref(table_expr, table)
@@ -223,7 +225,7 @@ class Compiler(object):
     def compile_table_ref(self, table_expr, table):
         alias = table_expr.alias or table_expr.name
         columns = collections.OrderedDict([
-            (name, column.type) for name, column in table.columns.items()
+            (name, column.type) for name, column in table.columns.iteritems()
         ])
         type_ctx = type_context.TypeContext.from_table_and_columns(
             alias, columns, None)
@@ -263,9 +265,9 @@ class Compiler(object):
             [table_expr.base],
             (join_part.table_expr for join_part in table_expr.join_parts)
         )
-        compiled_result = list(map(self.compile_joined_table,
-                              table_expressions))
-        compiled_table_exprs, compiled_aliases = list(zip(*compiled_result))
+        compiled_result = map(self.compile_joined_table,
+                              table_expressions)
+        compiled_table_exprs, compiled_aliases = zip(*compiled_result)
         type_contexts = [compiled_table.type_ctx
                          for compiled_table in compiled_table_exprs]
         result_fields = self.compile_join_fields(
@@ -278,9 +280,9 @@ class Compiler(object):
             type_contexts)
         return typed_ast.Join(
             base=compiled_table_exprs[0],
-            tables=list(zip(compiled_table_exprs[1:],
+            tables=zip(compiled_table_exprs[1:],
                        (join_part.join_type
-                        for join_part in table_expr.join_parts))),
+                        for join_part in table_expr.join_parts)),
             conditions=result_fields,
             type_ctx=result_type_ctx)
 
@@ -465,7 +467,7 @@ class Compiler(object):
             return typed_ast.Literal(expr.value, tq_types.INT)
         if isinstance(expr.value, float):
             return typed_ast.Literal(expr.value, tq_types.FLOAT)
-        elif isinstance(expr.value, str):
+        elif isinstance(expr.value, basestring):
             return typed_ast.Literal(expr.value, tq_types.STRING)
         elif expr.value is None:
             return typed_ast.Literal(expr.value, tq_types.NONETYPE)

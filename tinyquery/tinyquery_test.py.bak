@@ -1,7 +1,7 @@
 import json
 import unittest
 
-from . import tinyquery
+import tinyquery
 
 
 class TinyQueryTest(unittest.TestCase):

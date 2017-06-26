@@ -63,7 +63,7 @@ tokens = [
     'FLOAT',
     'ID',
     'STRING'
-] + list(reserved_words.values())
+] + reserved_words.values()
 
 
 t_PLUS = r'\+'
@@ -107,7 +107,7 @@ def t_INTEGER(token):
     try:
         token.value = int(token.value)
     except ValueError:
-        print(("Integer value too large %d", token.value))
+        print("Integer value too large %d", token.value)
         token.value = 0
     return token
 

@@ -2,11 +2,11 @@
 # pep8-disable:E115,E128
 import collections
 
-from . import context
-from . import tq_ast
-from . import tq_modes
-from . import typed_ast
-from . import tq_types
+import context
+import tq_ast
+import tq_modes
+import typed_ast
+import tq_types
 
 
 class Evaluator(object):
@@ -105,7 +105,7 @@ class Evaluator(object):
 
         # TODO: Seems pretty ugly and wasteful to use a whole context as a
         # group key.
-        for i in range(select_context.num_rows):
+        for i in xrange(select_context.num_rows):
             key = self.get_group_key(
                 field_groups, alias_group_list, select_context,
                 alias_group_result_context, i)
@@ -119,7 +119,7 @@ class Evaluator(object):
 
         result_context = self.empty_context_from_select_fields(select_fields)
         result_col_names = [field.alias for field in select_fields]
-        for context_key, group_context in group_contexts.items():
+        for context_key, group_context in group_contexts.iteritems():
             group_eval_context = context.Context(
                 1, context_key.columns, group_context)
             group_aggregate_result_context = self.evaluate_select_fields(
@@ -153,23 +153,23 @@ class Evaluator(object):
         all_values = []
         sort_by_indexes = collections.OrderedDict()
 
-        for ((_, column_name), column) in overall_context.columns.items():
+        for ((_, column_name), column) in overall_context.columns.iteritems():
             all_values.append(column.values)
 
         for order_by_column in ordering_col:
             for count, ((_, column_name), column) in enumerate(
-                    overall_context.columns.items()):
+                    overall_context.columns.iteritems()):
                 if order_by_column.column_id.name == column_name:
                     sort_by_indexes[count] = order_by_column.is_ascending
                     break
         reversed_sort_by_indexes = collections.OrderedDict(
             reversed(list(sort_by_indexes.items())))
 
-        t_all_values = list(map(list, list(zip(*all_values))))
-        for index, is_ascending in reversed_sort_by_indexes.items():
+        t_all_values = map(list, zip(*all_values))
+        for index, is_ascending in reversed_sort_by_indexes.iteritems():
             t_all_values.sort(key=lambda x: (x[index]),
                               reverse=not is_ascending)
-        ordered_values = list(map(list, list(zip(*t_all_values))))
+        ordered_values = map(list, zip(*t_all_values))
         # If we started evaluating an ordering over 0 rows,
         # all_values was originally [[], [], [], ...], i.e. the empty list for
         # each column, but now ordered_values is just the empty list, since
@@ -279,8 +279,8 @@ class Evaluator(object):
             ctx_with_primary_key = context.empty_context_from_template(ctx)
             context.append_context_to_context(ctx, ctx_with_primary_key)
 
-            (table_name, _), _ = list(ctx_with_primary_key.columns.items())[0]
-            row_nums = list(range(1, ctx_with_primary_key.num_rows + 1))
+            (table_name, _), _ = ctx_with_primary_key.columns.items()[0]
+            row_nums = range(1, ctx_with_primary_key.num_rows + 1)
             row_nums_col = context.Column(
                 type=tq_types.INT, mode=tq_modes.NULLABLE, values=row_nums)
             ctx_with_primary_key.columns[(table_name,
@@ -363,8 +363,8 @@ class Evaluator(object):
 
     def eval_table_Join(self, table_expr):
         base_context = self.evaluate_table_expr(table_expr.base)
-        rhs_tables, join_types = list(zip(*table_expr.tables))
-        other_contexts = list(map(self.evaluate_table_expr, rhs_tables))
+        rhs_tables, join_types = zip(*table_expr.tables)
+        other_contexts = map(self.evaluate_table_expr, rhs_tables)
 
         lhs_context = base_context
 
@@ -382,7 +382,7 @@ class Evaluator(object):
             lhs_key_refs = [cond.column1 for cond in conditions]
             rhs_key_refs = [cond.column2 for cond in conditions]
             rhs_key_contexts = {}
-            for i in range(rhs_context.num_rows):
+            for i in xrange(rhs_context.num_rows):
                 rhs_key = self.get_join_key(rhs_context, rhs_key_refs, i)
                 if rhs_key not in rhs_key_contexts:
                     rhs_key_contexts[rhs_key] = (
@@ -395,7 +395,7 @@ class Evaluator(object):
                 context.empty_context_from_template(lhs_context),
                 context.empty_context_from_template(rhs_context))
 
-            for i in range(lhs_context.num_rows):
+            for i in xrange(lhs_context.num_rows):
                 lhs_key = self.get_join_key(lhs_context, lhs_key_refs, i)
                 lhs_row_context = context.row_context_from_context(
                     lhs_context, i)
@@ -468,7 +468,7 @@ class Evaluator(object):
         return func_call.func.evaluate(context.num_rows, *arg_results)
 
     def evaluate_Literal(self, literal, context_object):
-        values = [literal.value for _ in range(context_object.num_rows)]
+        values = [literal.value for _ in xrange(context_object.num_rows)]
         return context.Column(type=literal.type, mode=tq_modes.NULLABLE,
                               values=values)
 

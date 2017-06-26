@@ -1,6 +1,6 @@
 import unittest
 
-from . import lexer
+import lexer
 
 
 plus = ('PLUS', '+')

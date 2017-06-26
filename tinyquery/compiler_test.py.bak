@@ -4,15 +4,15 @@ import collections
 import datetime
 import unittest
 
-from . import compiler
-from . import context
-from . import runtime
-from . import tinyquery
-from . import tq_ast
-from . import tq_modes
-from . import tq_types
-from . import type_context
-from . import typed_ast
+import compiler
+import context
+import runtime
+import tinyquery
+import tq_ast
+import tq_modes
+import tq_types
+import type_context
+import typed_ast
 
 
 class CompilerTest(unittest.TestCase):

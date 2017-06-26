@@ -6,7 +6,7 @@ These functions allow us to flatten into non-repeated columns to apply various
 operations and then unflatten back into repeated columns afterwards.
 """
 
-from . import tq_modes
+import tq_modes
 
 
 def rebuild_column_values(repetitions, values, result):
@@ -80,7 +80,7 @@ def flatten_column_values(repeated_column_indices, column_values):
             values.  The list for each column will not contain nested
             lists.
     """
-    rows = list(zip(*column_values))
+    rows = zip(*column_values)
     repetition_counts = [
         max(max(len(row[idx]) for idx in repeated_column_indices), 1)
         for row in rows
@@ -93,7 +93,7 @@ def flatten_column_values(repeated_column_indices, column_values):
         ]
         for row, count in zip(rows, repetition_counts)
     ]
-    normalized_columns = list(zip(*rows_with_repetition_normalized))
+    normalized_columns = zip(*rows_with_repetition_normalized)
     flattened_columns = [
         [val for arr in col for val in arr]
         for col in normalized_columns]

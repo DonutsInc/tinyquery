@@ -1,7 +1,7 @@
 import unittest
 
-from . import tq_ast
-from . import parser
+import tq_ast
+import parser
 
 
 def literal(value):

@@ -3,8 +3,8 @@ import os
 
 from ply import yacc
 
-from . import tq_ast
-from . import lexer
+import tq_ast
+import lexer
 
 
 tokens = lexer.tokens
@@ -484,6 +484,6 @@ def parse_text(text):
     if should_rebuild_parser:
         parser = yacc.yacc()
     else:
-        from . import parsetab
+        import parsetab
         parser = yacc.yacc(debug=0, write_tables=0, tabmodule=parsetab)
     return parser.parse(text, lexer=lexer.get_lexer())
